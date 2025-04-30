@@ -14,7 +14,7 @@ stage('Checkout') {
       }
       steps {
         withCredentials([string(credentialsId: 'sonar-cred', variable: 'SONAR_AUTH_TOKEN')]) {
-         sh 'cd frontend sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+         sh 'cd backend sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }
       }
     }
@@ -22,13 +22,13 @@ stage('Checkout') {
 
     stage('docker build and run') {
       environment {
-        DOCKER_IMAGE = "nandini965/frontend1:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "nandini965/backend1:${BUILD_NUMBER}"
       }
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
           script {
             sh '''
-              docker build -t ${DOCKER_IMAGE} -f frontend/Dockerfile frontend/
+              docker build -t ${DOCKER_IMAGE} -f backend/Dockerfile backend/
               echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
               docker push ${DOCKER_IMAGE}
               docker logout
@@ -51,7 +51,7 @@ stage('Checkout') {
                sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" k8s/deployment.yaml
                git add k8s/deployment.yaml
                git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "No changes to commit"
-               git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+               git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
              '''
            }
          }
