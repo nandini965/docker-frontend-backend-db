@@ -8,6 +8,11 @@ stage('Checkout') {
         //git branch: 'main', url: 'https://github.com/iam-veeramalla/Jenkins-Zero-To-Hero.git'
       }
     }
+    stage('npm') {
+    steps {
+    sh 'npm install'
+    }
+    }
   stage('Static Code Analysis') {
       environment {
         SONAR_URL = "http://13.233.246.140:9000"
